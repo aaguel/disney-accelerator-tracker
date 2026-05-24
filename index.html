@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Disney Accelerator Tracker</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f5f5f5;
+      color: #1a1a1a;
+    }
+
+    header {
+      background: #001689;
+      color: white;
+      padding: 24px 32px;
+    }
+
+    header h1 { font-size: 22px; font-weight: 600; }
+    header p { font-size: 14px; opacity: 0.7; margin-top: 4px; }
+
+    .controls {
+      display: flex;
+      gap: 12px;
+      padding: 20px 32px;
+      background: white;
+      border-bottom: 1px solid #e5e5e5;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    input, select {
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+      background: white;
+    }
+
+    input { width: 240px; }
+
+    .count {
+      margin-left: auto;
+      font-size: 13px;
+      color: #666;
+    }
+
+    .suggest-box {
+      background: white;
+      border-bottom: 1px solid #e5e5e5;
+      padding: 24px 32px;
+    }
+
+    .suggest-box h2 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .suggest-box p {
+      font-size: 13px;
+      color: #888;
+      margin-bottom: 12px;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+
+    .form-row input, .form-row select {
+      flex: 1;
+      min-width: 160px;
+    }
+
+    textarea {
+      width: 100%;
+      max-width: 600px;
+      height: 80px;
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+      resize: none;
+      font-family: inherit;
+    }
+
+    .suggestions-output {
+      margin-top: 12px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .suggestion-tag {
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .suggestion-cat { background: #ede9fe; color: #5b21b6; }
+    .suggestion-stage { background: #dbeafe; color: #1e40af; }
+    .suggestion-vertical { background: #d1fae5; color: #065f46; }
+
+    .trends-box {
+      background: white;
+      border-bottom: 1px solid #e5e5e5;
+      padding: 24px 32px;
+    }
+
+    .trends-box h2 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .trends-box p {
+      font-size: 13px;
+      color: #888;
+      margin-bottom: 16px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 16px;
+      padding: 24px 32px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 10px;
+      padding: 18px;
+      border: 1px solid #e5e5e5;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+
+    .card-name { font-size: 15px; font-weight: 600; }
+    .card-year { font-size: 12px; color: #888; margin-top: 2px; }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .badge-ai { background: #ede9fe; color: #5b21b6; }
+    .badge-imm { background: #d1fae5; color: #065f46; }
+    .badge-fan { background: #fef3c7; color: #92400e; }
+    .badge-sport { background: #dbeafe; color: #1e40af; }
+    .badge-kids { background: #dcfce7; color: #166534; }
+    .badge-game { background: #fce7f3; color: #9d174d; }
+    .badge-data { background: #f3f4f6; color: #374151; }
+
+    .card-notes {
+      font-size: 13px;
+      color: #555;
+      margin: 8px 0;
+      line-height: 1.5;
+    }
+
+    .card-verticals {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 10px;
+    }
+
+    .vertical-tag {
+      background: #f3f4f6;
+      color: #374151;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-size: 11px;
+    }
+
+    .mat {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 20px;
+    }
+
+    .mat-early { background: #fee2e2; color: #991b1b; }
+    .mat-growing { background: #fef3c7; color: #92400e; }
+    .mat-scaled { background: #d1fae5; color: #065f46; }
+
+    .loading {
+      text-align: center;
+      padding: 60px;
+      color: #888;
+    }
+
+    .error {
+      text-align: center;
+      padding: 60px;
+      color: #dc2626;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Disney Accelerator Tracker</h1>
+  <p>All cohorts 2014 – 2025</p>
+</header>
+
+<div class="controls">
+  <input type="text" id="search" placeholder="Search companies..." oninput="render()" />
+  <select id="filterYear" onchange="render()">
+    <option value="">All years</option>
+    <option>2025</option><option>2024</option><option>2022</option>
+    <option>2021</option><option>2018</option><option>2017</option>
+    <option>2016</option><option>2015</option><option>2014</option>
+  </select>
+  <select id="filterCat" onchange="render()">
+    <option value="">All categories</option>
+    <option>AI & Synthetic Media</option>
+    <option>Immersive & Spatial</option>
+    <option>Creator & Fan Engagement</option>
+    <option>Sports & Live</option>
+    <option>Kids & Education</option>
+    <option>Gaming & Interactive</option>
+    <option>Data & Analytics</option>
+  </select>
+  <select id="filterVertical" onchange="render()">
+    <option value="">All verticals</option>
+    <option>Studio & Animation</option>
+    <option>DTC & Streaming</option>
+    <option>Parks & Experiences</option>
+    <option>Music</option>
+    <option>Consumer Products & Merch</option>
+    <option>Games & Interactive</option>
+    <option>Sports & ESPN</option>
+    <option>Kids & Education</option>
+  </select>
+  <span class="count" id="count"></span>
+</div>
+
+<div class="suggest-box">
+  <h2>Add a new company</h2>
+  <p>Type a description and tags will be suggested automatically</p>
+  <div class="form-row">
+    <input type="text" id="newName" placeholder="Company name" />
+    <input type="text" id="newYear" placeholder="Cohort year e.g. 2026" />
+  </div>
+  <textarea id="descInput" placeholder="Describe what the company does..." oninput="suggest()"></textarea>
+  <div id="suggestions" class="suggestions-output"></div>
+  <div class="form-row" style="margin-top:12px">
+    <select id="newCat">
+      <option value="">Tech category</option>
+      <option>AI & Synthetic Media</option>
+      <option>Immersive & Spatial</option>
+      <option>Creator & Fan Engagement</option>
+      <option>Sports & Live</option>
+      <option>Kids & Education</option>
+      <option>Gaming & Interactive</option>
+      <option>Data & Analytics</option>
+    </select>
+    <select id="newStage">
+      <option value="">Production stage</option>
+      <option>development</option>
+      <option>pre-production</option>
+      <option>production</option>
+      <option>post-production</option>
+      <option>distribution & marketing</option>
+    </select>
+    <select id="newMaturity">
+      <option value="">Maturity</option>
+      <option>early</option>
+      <option>growing</option>
+      <option>scaled</option>
+    </select>
+  </div>
+  <div class="form-row" style="margin-top:8px">
+    <select id="newVertical" multiple size="3" style="width:100%;max-width:600px;padding:8px">
+      <option>Studio & Animation</option>
+      <option>DTC & Streaming</option>
+      <option>Parks & Experiences</option>
+      <option>Music</option>
+      <option>Consumer Products & Merch</option>
+      <option>Games & Interactive</option>
+      <option>Sports & ESPN</option>
+      <option>Kids & Education</option>
+    </select>
+  </div>
+  <p style="font-size:12px;color:#888;margin-top:4px">Hold Cmd to select multiple verticals</p>
+  <button onclick="addCompany()" style="margin-top:12px;padding:10px 24px;background:#001689;color:white;border:none;border-radius:6px;font-size:14px;cursor:pointer">Add Company</button>
+  <div id="formMessage" style="margin-top:10px;font-size:13px"></div>
+</div>
+
+<div class="trends-box">
+  <h2>AI & Synthetic Media growth by cohort</h2>
+  <p>Number of AI companies per cohort year — Disney's production pipeline thesis in data</p>
+  <canvas id="trendChart" height="80"></canvas>
+</div>
+
+<div id="container" class="loading">Loading companies...</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+  const API = 'https://ifsr6ss9jk.execute-api.us-east-1.amazonaws.com/prod/companies';
+
+  const catBadge = {
+    'AI & Synthetic Media': 'badge badge-ai',
+    'Immersive & Spatial': 'badge badge-imm',
+    'Creator & Fan Engagement': 'badge badge-fan',
+    'Sports & Live': 'badge badge-sport',
+    'Kids & Education': 'badge badge-kids',
+    'Gaming & Interactive': 'badge badge-game',
+    'Data & Analytics': 'badge badge-data',
+  };
+
+  const matBadge = {
+    early: 'mat mat-early',
+    growing: 'mat mat-growing',
+    scaled: 'mat mat-scaled',
+  };
+
+  let companies = [];
+
+  async function load() {
+    try {
+      const res = await fetch(API);
+      const data = await res.json();
+      companies = data.sort((a, b) => b.cohortYear - a.cohortYear);
+      render();
+      renderChart();
+    } catch (e) {
+      document.getElementById('container').className = 'error';
+      document.getElementById('container').innerHTML = 'Failed to load companies. Check your API URL.';
+    }
+  }
+
+  function render() {
+    const search = document.getElementById('search').value.toLowerCase();
+    const year = document.getElementById('filterYear').value;
+    const cat = document.getElementById('filterCat').value;
+    const vertical = document.getElementById('filterVertical').value;
+
+    const filtered = companies.filter(c => {
+      const matchSearch = !search ||
+        c.name.toLowerCase().includes(search) ||
+        (c.notes || '').toLowerCase().includes(search);
+      const matchYear = !year || String(c.cohortYear) === year;
+      const matchCat = !cat || c.techCategory === cat;
+      const matchVertical = !vertical || (c.disneyVertical || []).includes(vertical);
+      return matchSearch && matchYear && matchCat && matchVertical;
+    });
+
+    document.getElementById('count').textContent = `${filtered.length} companies`;
+
+    if (filtered.length === 0) {
+      document.getElementById('container').className = '';
+      document.getElementById('container').innerHTML = '<div class="loading">No companies match your filters.</div>';
+      return;
+    }
+
+    const html = filtered.map(c => `
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-name">${c.name}</div>
+            <div class="card-year">${c.cohortYear || '—'}</div>
+          </div>
+          <span class="${matBadge[c.technologyMaturity] || 'mat'}">${c.technologyMaturity}</span>
+        </div>
+        <span class="${catBadge[c.techCategory] || 'badge'}">${c.techCategory}</span>
+        <p class="card-notes">${c.notes || ''}</p>
+        <div class="card-verticals">
+          ${(c.disneyVertical || []).map(v => `<span class="vertical-tag">${v}</span>`).join('')}
+        </div>
+      </div>
+    `).join('');
+
+    document.getElementById('container').className = 'grid';
+    document.getElementById('container').innerHTML = html;
+  }
+
+  function renderChart() {
+    const years = [2014, 2015, 2016, 2017, 2018, 2021, 2022, 2024, 2025];
+
+    const counts = years.map(yr =>
+      companies.filter(c => c.cohortYear === yr && c.techCategory === 'AI & Synthetic Media').length
+    );
+
+    const ctx = document.getElementById('trendChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: years,
+        datasets: [{
+          label: 'AI & Synthetic Media companies',
+          data: counts,
+          backgroundColor: '#001689',
+          borderRadius: 6,
+        }]
+      },
+      options: {
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: { stepSize: 1 }
+          }
+        }
+      }
+    });
+  }
+
+  function suggest() {
+    const desc = document.getElementById('descInput').value.toLowerCase();
+    const output = document.getElementById('suggestions');
+
+    if (!desc.trim()) {
+      output.innerHTML = '';
+      return;
+    }
+
+    let cat = 'Creator & Fan Engagement';
+    let stage = 'distribution & marketing';
+    let vertical = 'DTC & Streaming';
+
+    if (/voice|audio|speech|dub|sound|stem|music/.test(desc)) {
+      cat = 'AI & Synthetic Media';
+      stage = 'post-production';
+      vertical = 'Studio & Animation';
+    } else if (/ar|vr|immersive|spatial|holographic|headset|360|virtual reality|augmented/.test(desc)) {
+      cat = 'Immersive & Spatial';
+      stage = 'production';
+      vertical = 'Parks & Experiences';
+    } else if (/kids|children|education|learn|coding|school|teach|student/.test(desc)) {
+      cat = 'Kids & Education';
+      stage = 'distribution & marketing';
+      vertical = 'Kids & Education';
+    } else if (/sports|athlete|espn|football|basketball|score|live game|stadium/.test(desc)) {
+      cat = 'Sports & Live';
+      stage = 'distribution & marketing';
+      vertical = 'Sports & ESPN';
+    } else if (/blockchain|nft|collectible|web3|fan engagement|token/.test(desc)) {
+      cat = 'Creator & Fan Engagement';
+      stage = 'distribution & marketing';
+      vertical = 'Consumer Products & Merch';
+    } else if (/ai|machine learning|generative|synthetic|animation|3d environment|character/.test(desc)) {
+      cat = 'AI & Synthetic Media';
+      stage = 'production';
+      vertical = 'Studio & Animation';
+    } else if (/data|analytics|insights|metrics|measurement|viewership|audience/.test(desc)) {
+      cat = 'Data & Analytics';
+      stage = 'distribution & marketing';
+      vertical = 'DTC & Streaming';
+    } else if (/game|gaming|interactive|esports|esport|play/.test(desc)) {
+      cat = 'Gaming & Interactive';
+      stage = 'production';
+      vertical = 'Games & Interactive';
+    }
+
+    output.innerHTML = `
+      <span class="suggestion-tag suggestion-cat">${cat}</span>
+      <span class="suggestion-tag suggestion-stage">${stage}</span>
+      <span class="suggestion-tag suggestion-vertical">${vertical}</span>
+    `;
+  }
+
+  async function addCompany() {
+    const name = document.getElementById('newName').value.trim();
+    const year = document.getElementById('newYear').value.trim();
+    const notes = document.getElementById('descInput').value.trim();
+    const cat = document.getElementById('newCat').value;
+    const stage = document.getElementById('newStage').value;
+    const maturity = document.getElementById('newMaturity').value;
+    const verticalSelect = document.getElementById('newVertical');
+    const verticals = Array.from(verticalSelect.selectedOptions).map(o => o.value);
+    const msg = document.getElementById('formMessage');
+
+    if (!name || !year || !cat || !stage || !maturity || verticals.length === 0) {
+      msg.style.color = '#dc2626';
+      msg.textContent = 'Please fill in all fields and select at least one vertical.';
+      return;
+    }
+
+    const companyId = name.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+    const payload = {
+      companyId,
+      name,
+      cohortYear: parseInt(year),
+      techCategory: cat,
+      productionStage: stage,
+      disneyVertical: verticals,
+      technologyMaturity: maturity,
+      status: 'active cohort',
+      notes
+    };
+
+    try {
+      msg.style.color = '#888';
+      msg.textContent = 'Saving...';
+
+      const res = await fetch(API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        msg.style.color = '#065f46';
+        msg.textContent = `${name} added successfully!`;
+        companies.unshift(payload);
+        render();
+      } else {
+        msg.style.color = '#dc2626';
+        msg.textContent = `Error: ${data.error}`;
+      }
+    } catch (e) {
+      msg.style.color = '#dc2626';
+      msg.textContent = 'Failed to connect to API.';
+    }
+  }
+
+  load();
+</script>
+</body>
+</html>
