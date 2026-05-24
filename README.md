@@ -2,6 +2,7 @@
 
 A full-stack AWS web application for tracking and analyzing Disney Accelerator portfolio companies across all cohorts from 2014–2025.
 
+**Live demo:** https://main.d1e74dieu7z9xm.amplifyapp.com/
 ## What it does
 
 - Browse all Disney Accelerator companies with filtering by cohort year, tech category, and Disney vertical
