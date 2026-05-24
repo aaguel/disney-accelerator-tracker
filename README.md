@@ -4,7 +4,7 @@ A full-stack AWS web application for tracking and analyzing Disney Accelerator p
 
 ## What it does
 
-- Browse all 71 Disney Accelerator companies with filtering by cohort year, tech category, and Disney vertical
+- Browse all Disney Accelerator companies with filtering by cohort year, tech category, and Disney vertical
 - Visualizes the growth of AI & Synthetic Media companies over time — supporting the thesis that Disney is systematically investing in tools that compress the content production pipeline
 - Suggests category tags for new companies based on a rules-based engine built from my own analysis of Disney's investment patterns
 - Allows adding new companies to the database for future cohort tracking
